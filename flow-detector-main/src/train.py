@@ -18,6 +18,8 @@
 import asyncio #ibrary for writing asynchronous code
 import pandas as pd #library for data manipulation and analysis
 import numpy as np #library for numerical computing
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.model_selection import train_test_split #used to split the dataset into training and testing sets.
 from sklearn.preprocessing import LabelEncoder, StandardScaler #It is used for label feature scaling.
 from tensorflow import keras #Keras API provided by TensorFlow,(deep learning library) #Keras provides a high-level interface for building and training neural networks.
@@ -77,11 +79,28 @@ class DdosDetector: # constructor method initializes the DdosDetector object. It
         self.model.fit(self.X_train, self.y_train, epochs=10, batch_size=32, validation_split=0.2)# self.X_train contains the input features and self.y_train contains the corresponding target labels.
 #epochs=10 indicates that the training process will iterate over the entire training dataset 10 times. Each iteration is considered as one epoch. 
 
-    def evaluate_model(self): 
+def evaluate_model(self): 
         # Evaluate the model on the testing set
         test_loss, test_acc = self.model.evaluate(self.X_test, self.y_test, verbose=2)#One line per epoch mode. It displays a single line for each epoch showing the progress and evaluation metrics.
-        print('Test accuracy:', test_acc)
+        
+        # Evaluate the model on the testing set
+        y_pred = self.model.predict(self.X_test)  # Predict the labels for the testing set
+        y_pred = np.round(y_pred).flatten()  # Convert the predicted probabilities to binary labels
 
+        # Calculate precision, recall, and F1 score
+        precision = precision_score(self.y_test, y_pred)
+        recall = recall_score(self.y_test, y_pred)
+        f1 = f1_score(self.y_test, y_pred)
+        
+       # Calculate confusion matrix
+        cm = confusion_matrix(self.y_test, y_pred)
+        print('Confusion Matrix:')
+        print(cm)
+
+        print('Test accuracy:', test_acc)
+        print('Precision:', precision)
+        print('Recall:', recall)
+        print('F1 Score:', f1)
     def save_model(self, model_file_path):
         # save the trained model
         self.model.save(model_file_path)#location where the model will be saved.
